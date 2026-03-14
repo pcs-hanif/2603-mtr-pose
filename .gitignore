@@ -3,6 +3,7 @@
 
 # Service account credentials
 service-account.json
+sb-service-account.json
 *.json.key
 
 # Go build artifacts
