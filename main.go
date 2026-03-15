@@ -52,6 +52,24 @@ func main() {
 		WebhookURL:      getEnv("SB_GOOGLE_CHAT_WEBHOOK", ""),
 	}
 
+	// Production POSe Configuration
+	poseConfig := ReceiverConfig{
+		Name:            "POSe",
+		ProjectID:       getEnv("POSE_PROJECT_ID", ""),
+		CredentialsPath: getEnv("POSE_GOOGLE_APPLICATION_CREDENTIALS", "./pose-service-account.json"),
+		SubscriptionID:  getEnv("POSE_SUBSCRIPTION_ID", ""),
+		WebhookURL:      getEnv("POSE_GOOGLE_CHAT_WEBHOOK", ""),
+	}
+
+	// Production TAP Configuration
+	tapConfig := ReceiverConfig{
+		Name:            "TAP",
+		ProjectID:       getEnv("TAP_PROJECT_ID", ""),
+		CredentialsPath: getEnv("TAP_GOOGLE_APPLICATION_CREDENTIALS", "./tap-service-account.json"),
+		SubscriptionID:  getEnv("TAP_SUBSCRIPTION_ID", ""),
+		WebhookURL:      getEnv("TAP_GOOGLE_CHAT_WEBHOOK", ""),
+	}
+
 	// Setup signal handling for graceful shutdown
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, os.Interrupt, syscall.SIGTERM)
@@ -62,7 +80,7 @@ func main() {
 	var wg sync.WaitGroup
 
 	// Collect all configs
-	configs := []ReceiverConfig{mtrConfig, sbConfig}
+	configs := []ReceiverConfig{mtrConfig, sbConfig, poseConfig, tapConfig}
 
 	for _, cfg := range configs {
 		// Skip if not configured
@@ -133,7 +151,7 @@ func sendToGoogleChat(webhookURL string, msg pubsubclient.CommandMessage) error 
 		return fmt.Errorf("failed to format JSON: %w", err)
 	}
 
-	wib, _ := time.LoadLocation("Asia/Jakarta")
+	wib := time.FixedZone("WIB", 7*60*60)
 	timestamp := fmt.Sprintf("timestamp: %s", time.Now().In(wib).Format("2006-01-02 15:04:05.000"))
 	fullText := fmt.Sprintf("%s\n\n%s", timestamp, string(prettyJSON))
 

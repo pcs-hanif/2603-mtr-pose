@@ -4,6 +4,8 @@
 # Service account credentials
 service-account.json
 sb-service-account.json
+pose-service-account.json
+tap-service-account.json
 *.json.key
 
 # Go build artifacts
